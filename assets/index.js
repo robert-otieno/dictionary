@@ -1,6 +1,6 @@
 const wrapper = document.querySelector(".wrapper"),
   searchInput = wrapper.querySelector("input"),
-  synonyms = wrapper.querySelector(".synonym .list"),
+  syns = wrapper.querySelector(".synonym .list"),
   volume = wrapper.querySelector(".word i"),
   removeIcon = wrapper.querySelector(".search span"),
   infoText = wrapper.querySelector(".info-text");
@@ -37,7 +37,7 @@ removeIcon.addEventListener("click", () => {
  * @param {*} word 
  */
 function fetchApi(word) {
-  infoText.style.color = "#000";
+  infoText.style.color = "#942B1F";
   wrapper.classList.remove("active");
   infoText.innerHTML = `Searching for the meaning of <span>"${word}"</span>`;
 
@@ -58,38 +58,81 @@ function fetchApi(word) {
 function data(result, word) {
   if (result.title) {
     wrapper.querySelector(".word p").innerText = word;
-    wrapper.querySelector(".word span").innerText = `${result.message}`;
+    infoText.innerHTML = `${result.message}`;
+    wrapper.querySelector("ul").style.height = "0";
+    wrapper.querySelector("ul").style.opacity = 0;
+  } else {
+    const newDefinition = new Definition(result);
+    const newSynonym = new Synonym(result);
+    const newExample = new Example(result);
+
+    newDefinition.renderDefinition();
+    newExample.renderExample();
+    newSynonym.renderSynonyms();
+  }
+}
+
+class Definition {
+  constructor(result) {
+    this.result = result;
+    this.show();
+    this.renderPhonetics();
   }
 
-  wrapper.classList.add("active");
-  wrapper.querySelector("ul").style.height = "100%";
-  wrapper.querySelector("ul").style.opacity = 1;
-
-  phoneticsText = `Commonly pronounced as ${result[0].phonetics[0].text}`;
-  phoneticsAudio = result[0].phonetics[result[0].phonetics.length - 1].audio;
-
-  wrapper.querySelector(".word p").innerText = result[0].word;
-  wrapper.querySelector(".word span").innerText = phoneticsText;
-  audio.setAttribute("src", phoneticsAudio);
-
-  let definitions = result[0].meanings[0].definitions[0];
-
-  wrapper.querySelector(".meaning span").innerText = definitions.definition;
-
-  if (definitions.example === undefined) {
-    wrapper.querySelector(".example").style.display = "none";
-  } else {
-    wrapper.querySelector(".example span").innerText = definitions.example;
+  show() {
+    wrapper.classList.add("active");
+    wrapper.querySelector("ul").style.height = "100%";
+    wrapper.querySelector("ul").style.opacity = 1;
+    wrapper.querySelector(".word p").innerText = this.result[0].word;
   }
 
-  if (definitions.synonyms[0] === undefined) {
-    synonyms.parentElement.style.display = "none";
-  } else {
-    synonyms.parentElement.style.display = "block";
-    synonyms.innerHTML = "";
-    for (let syn in synonyms) {
-      let tag = `<span onclick=search('${definitions.synonyms[syn]}')>${definitions.synonyms[syn]}</span>`
-      synonyms.insertAdjacentHTML("beforeend", tag)
+  renderPhonetics() {
+    let phoneticsText = `Commonly pronounced as ${this.result[0].phonetics[0].text}`;
+    let phoneticsAudio = this.result[0].phonetics[this.result[0].phonetics.length - 1].audio;
+
+    wrapper.querySelector(".word span").innerText = phoneticsText;
+
+    if (phoneticsAudio) {
+      audio.setAttribute("src", phoneticsAudio);
+      volume.style.color = "#942B1F";
+    }
+  }
+
+  renderDefinition() {
+    wrapper.querySelector(".meaning span").innerText = this.result[0].meanings[0].definitions[0].definition;
+  }
+}
+
+class Synonym {
+  constructor(result) {
+    this.result_synonyms = result[0].meanings[0].synonyms;
+  }
+
+  renderSynonyms() {
+    if (this.result_synonyms.length === 0) {
+      syns.parentElement.style.display = "none";
+    } else {
+      syns.parentElement.style.display = "block";
+      syns.innerHTML = "";
+
+      for (let i = 0; i < this.result_synonyms.length; i++) {
+        let tag = `<span onclick=fetchApi('${this.result_synonyms[i]}')>${this.result_synonyms[i]}</span>`;
+        syns.insertAdjacentHTML("beforeend", tag)
+      }
+    }
+  }
+}
+
+class Example {
+  constructor(result) {
+    this.result_example = result[0].meanings[0].definitions[0].example;
+  }
+
+  renderExample() {
+    if (this.result_example === undefined) {
+      wrapper.querySelector(".example").style.display = "none";
+    } else {
+      wrapper.querySelector(".example span").innerText = this.result_example;
     }
   }
 }
