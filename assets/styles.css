@@ -11,7 +11,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(#191769, #3d3bb1);
+  background: linear-gradient(#942B1F, #EC223B);
 }
 /* wrapper styling */
 .wrapper {
@@ -75,7 +75,7 @@ body {
 }
 .search input:focus {
   padding: 0 41px;
-  border: 2px solid #191769;
+  border: 2px solid #942B1F;
 }
 .search :where(i, span) {
   position: absolute;
@@ -90,7 +90,7 @@ body {
   pointer-events: none;
 }
 .search input:focus ~ i {
-  color: #191769;
+  color: #942B1F;
 }
 .search span {
   right: 15px;
@@ -130,7 +130,7 @@ ul li:last-child {
 .content li .details {
   padding-left: 10px;
   border-radius: 4px 0 0 4px;
-  border-left: 3px solid #191769;
+  border-left: 3px solid #942B1F;
 }
 .content li .details p {
   font-size: 17px;
